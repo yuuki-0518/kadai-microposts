@@ -58,6 +58,12 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'user_follow', 'follow_id', 'user_id')->withTimestamps();
     }
     
+    // ユーザはこの投稿をお気に入りにした
+    public function favorites()
+    {
+        return $this->belongsToMany(User::class, 'micropost_favorite', 'user_id','micropost_id')->withTimestamps();
+    }
+    
      /**
      * $userIdで指定されたユーザをフォローする。
      *
@@ -103,6 +109,7 @@ class User extends Authenticatable
             return false;
         }
     }
+    
 
     /**
      * 指定された $userIdのユーザをこのユーザがフォロー中であるか調べる。フォロー中ならtrueを返す。
@@ -116,10 +123,53 @@ class User extends Authenticatable
         return $this->followings()->where('follow_id', $userId)->exists();
     }
     
-    public function loadRelationshipCounts()
+    
+    
+    
+      public function favorite($micropostId)
     {
-        $this->loadCount('microposts','followings', 'followers');
+       
+        $exist = $this->is_favorite($micropostId);
+       
+        $its_me = $this->id == $micropostId;
+
+        if ($exist || $its_me) {
+            
+            return false;
+        } else {
+           
+            $this->favorites()->attach($micropostId);
+            return true;
+        }
     }
+
+   
+    public function unfavorite($micropostId)
+    {
+        
+        $exist = $this->is_favorite($micropostId);
+        
+        $its_me = $this->id == $micropostId;
+
+        if ($exist && !$its_me) {
+            
+            $this->favorites()->detach($micropostId);
+            return true;
+        } else {
+           
+            return false;
+        }
+    }
+    
+
+   
+    public function is_favorite($micropostId)
+    {
+       
+        return $this->favorites()->where('favorite_id', $micropostId)->exists();
+    }
+    
+    
     
      /**
      * このユーザとフォロー中ユーザの投稿に絞り込む。
@@ -133,4 +183,11 @@ class User extends Authenticatable
         // それらのユーザが所有する投稿に絞り込む
         return Micropost::whereIn('user_id', $userIds);
     }
+    
+    
+    public function loadRelationshipCounts()
+    {
+        $this->loadCount('microposts','followings', 'followers', 'favorites');
+    }
+    
 }
