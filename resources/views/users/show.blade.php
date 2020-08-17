@@ -15,8 +15,8 @@
             @endif
             {{-- 投稿一覧 --}}
             @include('microposts.microposts')
-            {{-- お気に入り一覧 --}}
-            @include('microposts.favorites')
+            <!--{{-- お気に入り一覧 --}}-->
+            <!--@include('microposts.favorites')-->
         </div>
     </div>
 @endsection
