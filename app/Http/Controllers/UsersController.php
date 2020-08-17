@@ -92,14 +92,14 @@ class UsersController extends Controller
         $microposte = Microposte::findOrFail($id);
 
         // 関係するモデルの件数をロード
-        $microposte->loadRelationshipCounts();
+        $user->loadRelationshipCounts();
 
         // ユーザのお気に入り一覧を取得
         $favorites = $microposte->favorites()->paginate(10);
 
         // お気に入り一覧ビューでそれらを表示
         return view('microposts.favorites', [
-            'microposte' => $microposte,
+            'user' => $user,
             'microposts' => $favorites,
         ]);
     }
