@@ -89,16 +89,18 @@ class UsersController extends Controller
     public function favorites($id)
     {
         // idの値でユーザを検索して取得
-        $microposte = Microposte::findOrFail($id);
+        $user = User::findOrFail($id);
 
         // 関係するモデルの件数をロード
         $user->loadRelationshipCounts();
 
         // ユーザのお気に入り一覧を取得
-        $favorites = $microposte->favorites()->paginate(10);
+        $favorites = $user->favorites()->paginate(10);
 
         // お気に入り一覧ビューでそれらを表示
-        return view('microposts.favorites', [
+        // TODO: $favoritesにはUserモデルのfavorites関数の結果が入っているので、ViewファイルでUserのemailをそのまま呼び出すことができない
+        // TODO: 下のView関数に返却するのはfavoritesのレコードではなく、micropotsのレコードであるべき
+        return view('users.favorites', [
             'user' => $user,
             'microposts' => $favorites,
         ]);
